@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import requestAPI from '../Api/Api';
-import { walletActionFetch } from '../actions';
+import { walletActionFetch, walletExpenseAction } from '../actions';
 
 class Wallet extends React.Component {
   constructor() {
@@ -12,13 +12,14 @@ class Wallet extends React.Component {
       currency: 'USD',
       description: '',
       method: 'Dinheiro',
-      categoria: 'Alimentação',
+      tag: 'Alimentação',
     };
     this.totalExpenses = this.totalExpenses.bind(this);
     this.fetchAPI = this.fetchAPI.bind(this);
     this.handleSelectOptions = this.handleSelectOptions.bind(this);
     this.handleForm = this.handleForm.bind(this);
     this.submitClick = this.submitClick.bind(this);
+    this.totalExpenses = this.totalExpenses.bind(this);
   }
 
   componentDidMount() {
@@ -31,9 +32,12 @@ class Wallet extends React.Component {
     });
   }
 
-  totalExpenses(expenses, amount) {
-    const total = amount - expenses;
-    return total;
+  totalExpenses() {
+    const { propsExpenses } = this.props;
+    const total = propsExpenses.reduce((acumulador, element) => (
+      acumulador + (element.value * element.exchangeRates[element.currency].ask)
+    ), 0);
+    return total.toFixed(2);
   }
 
   async fetchAPI() {
@@ -51,25 +55,31 @@ class Wallet extends React.Component {
     this.setState({ [name]: value });
   }
 
-  submitClick() {
-
+  async submitClick() {
+    const apiCambio = await this.fetchAPI();
+    const { storeExpenses } = this.props;
+    storeExpenses(this.state, apiCambio);
+    this.setState({
+      value: '',
+    });
   }
 
   render() {
     const { propsEmail } = this.props;
-    const { value, currency, categoria, description, method } = this.state;
+    const { value, currency, tag, description, method } = this.state;
     return (
       <div>
-        <header
-          data-testid="email-field"
-        >
-          Email:
-          {propsEmail.email}
+        <header>
+          <span
+            data-testid="email-field"
+          >
+            Email:
+            {propsEmail.email}
+          </span>
           <span
             data-testid="total-field"
           >
-            Despesa Total:
-            {this.totalExpenses(0, 0)}
+            {this.totalExpenses()}
           </span>
           <span
             data-testid="header-currency-field"
@@ -130,8 +140,8 @@ class Wallet extends React.Component {
             Categoria
             <select
               id="tagID"
-              name="categoria"
-              value={ categoria }
+              name="tag"
+              value={ tag }
               onChange={ this.handleForm }
               data-testid="tag-input"
             >
@@ -147,7 +157,7 @@ class Wallet extends React.Component {
           type="submit"
           form="form1"
           value="submit"
-          onClick={ (e) => console.log(e.target) }
+          onClick={ (event) => this.submitClick(event) }
         >
           Adicionar despesa
         </button>
@@ -160,17 +170,21 @@ Wallet.propTypes = {
   propsEmail: PropTypes.objectOf.isRequired,
   storeCurrencies: PropTypes.func.isRequired,
   propsCurrency: PropTypes.arrayOf.isRequired,
+  propsExpenses: PropTypes.func.isRequired,
+  storeExpenses: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     propsEmail: state.user,
     propsCurrency: state.wallet.currencies,
+    propsExpenses: state.wallet.expenses,
   };
 }
 function mapDispatchToProps(dispatch) {
   return {
     storeCurrencies: (currencies) => dispatch(walletActionFetch(currencies)),
+    storeExpenses: (state, apiCambio) => dispatch(walletExpenseAction(state, apiCambio)),
   };
 }
 
