@@ -7,9 +7,18 @@ import { walletActionFetch } from '../actions';
 class Wallet extends React.Component {
   constructor() {
     super();
+    this.state = {
+      value: 0,
+      currency: 'USD',
+      description: '',
+      method: 'Dinheiro',
+      categoria: 'Alimentação',
+    };
     this.totalExpenses = this.totalExpenses.bind(this);
     this.fetchAPI = this.fetchAPI.bind(this);
     this.handleSelectOptions = this.handleSelectOptions.bind(this);
+    this.handleForm = this.handleForm.bind(this);
+    this.submitClick = this.submitClick.bind(this);
   }
 
   componentDidMount() {
@@ -38,8 +47,17 @@ class Wallet extends React.Component {
       .map((element) => <option key={ element } name={ element }>{element}</option>);
   }
 
+  handleForm({ target: { name, value } }) {
+    this.setState({ [name]: value });
+  }
+
+  submitClick() {
+
+  }
+
   render() {
     const { propsEmail } = this.props;
+    const { value, currency, categoria, description, method } = this.state;
     return (
       <div>
         <header
@@ -47,41 +65,49 @@ class Wallet extends React.Component {
         >
           Email:
           {propsEmail.email}
-          <div
+          <span
             data-testid="total-field"
           >
             Despesa Total:
             {this.totalExpenses(0, 0)}
-          </div>
-          <div
+          </span>
+          <span
             data-testid="header-currency-field"
           >
             BRL
-          </div>
+          </span>
         </header>
         <form>
           <label htmlFor="valueID">
             Valor:
             <input
               id="valueID"
-              data-testid="value-input"
+              name="value"
+              value={ value }
               type="number"
+              onChange={ this.handleForm }
+              data-testid="value-input"
             />
           </label>
           <label htmlFor="descriptionID">
             Descrição
             <input
               id="descriptionID"
-              data-testid="description-input"
               type="text"
+              value={ description }
+              name="description"
+              data-testid="description-input"
+              onChange={ this.handleForm }
             />
           </label>
           <label htmlFor="currencyID">
             Moeda
             <select
-              name="Moeda"
               id="currencyID"
+              name="currency"
+              value={ currency }
               data-testid="currency-input"
+              onChange={ this.handleForm }
             >
               {this.handleSelectOptions()}
             </select>
@@ -90,6 +116,9 @@ class Wallet extends React.Component {
             Método de pagamento
             <select
               id="methodID"
+              name="method"
+              value={ method }
+              onChange={ this.handleForm }
               data-testid="method-input"
             >
               <option value="Dinheiro">Dinheiro</option>
@@ -101,6 +130,9 @@ class Wallet extends React.Component {
             Categoria
             <select
               id="tagID"
+              name="categoria"
+              value={ categoria }
+              onChange={ this.handleForm }
               data-testid="tag-input"
             >
               <option value="Alimentação">Alimentação</option>
@@ -111,6 +143,14 @@ class Wallet extends React.Component {
             </select>
           </label>
         </form>
+        <button
+          type="submit"
+          form="form1"
+          value="submit"
+          onClick={ (e) => console.log(e.target) }
+        >
+          Adicionar despesa
+        </button>
       </div>
     );
   }

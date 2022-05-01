@@ -22,11 +22,12 @@ class Login extends React.Component {
   }
 
   passwordEnableButton(event) {
-    // const { emailHolder } = this.state;
-    // const Regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const { emailHolder } = this.state;
+    // regex source: https://stackoverflow.com/questions/46155/how-can-i-validate-an-email-address-in-javascript
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const six = 6;
     this.setState({
-      button: (event.target.value.length < six),
+      button: !((event.target.value.length >= six) && emailHolder.match(re)),
     });
   }
 
