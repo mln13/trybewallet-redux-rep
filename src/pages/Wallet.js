@@ -9,6 +9,7 @@ class Wallet extends React.Component {
     super();
     this.totalExpenses = this.totalExpenses.bind(this);
     this.fetchAPI = this.fetchAPI.bind(this);
+    this.handleSelectOptions = this.handleSelectOptions.bind(this);
   }
 
   componentDidMount() {
@@ -17,6 +18,7 @@ class Wallet extends React.Component {
       const listOfCurrencies = Object.keys(data);
       const filteredListOfCurriences = listOfCurrencies.filter((key) => (key !== 'USDT'));
       storeCurrencies(filteredListOfCurriences);
+      this.handleSelectOptions();
     });
   }
 
@@ -28,6 +30,12 @@ class Wallet extends React.Component {
   async fetchAPI() {
     const currencies = await requestAPI();
     return currencies;
+  }
+
+  handleSelectOptions() {
+    const { propsCurrency } = this.props;
+    return propsCurrency
+      .map((element) => <option key={ element } name={ element }>{element}</option>);
   }
 
   render() {
@@ -51,7 +59,58 @@ class Wallet extends React.Component {
             BRL
           </div>
         </header>
-        TrybeWallet
+        <form>
+          <label htmlFor="valueID">
+            Valor:
+            <input
+              id="valueID"
+              data-testid="value-input"
+              type="number"
+            />
+          </label>
+          <label htmlFor="descriptionID">
+            Descrição
+            <input
+              id="descriptionID"
+              data-testid="description-input"
+              type="text"
+            />
+          </label>
+          <label htmlFor="currencyID">
+            Moeda
+            <select
+              name="Moeda"
+              id="currencyID"
+              data-testid="currency-input"
+            >
+              {this.handleSelectOptions()}
+            </select>
+          </label>
+          <label htmlFor="methodID">
+            Método de pagamento
+            <select
+              id="methodID"
+              data-testid="method-input"
+            >
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Cartão de crédito">Cartão de crédito</option>
+              <option value="Cartão de débito">Cartão de débito</option>
+            </select>
+          </label>
+          <label htmlFor="tagID">
+            Categoria
+            <select
+              id="tagID"
+              data-testid="tag-input"
+            >
+              <option value="Alimentação">Alimentação</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Trabalho">Trabalho</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Saúde">Saúde</option>
+            </select>
+          </label>
+        </form>
       </div>
     );
   }
@@ -60,11 +119,13 @@ class Wallet extends React.Component {
 Wallet.propTypes = {
   propsEmail: PropTypes.objectOf.isRequired,
   storeCurrencies: PropTypes.func.isRequired,
+  propsCurrency: PropTypes.arrayOf.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     propsEmail: state.user,
+    propsCurrency: state.wallet.currencies,
   };
 }
 function mapDispatchToProps(dispatch) {
