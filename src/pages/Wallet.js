@@ -34,8 +34,9 @@ class Wallet extends React.Component {
 
   totalExpenses() {
     const { propsExpenses } = this.props;
-    const total = propsExpenses.reduce((acumulador, element) => (
-      acumulador + (element.value * element.exchangeRates[element.currency].ask)
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
+    const total = propsExpenses.reduce((acumulador, elemento) => (
+      acumulador + (elemento.value * elemento.exchangeRates[elemento.currency].ask)
     ), 0);
     return total.toFixed(2);
   }
@@ -161,6 +162,21 @@ class Wallet extends React.Component {
         >
           Adicionar despesa
         </button>
+        <table>
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Tag</th>
+              <th>Método de pagamento</th>
+              <th>Valor</th>
+              <th>Moeda</th>
+              <th>Câmbio utilizado</th>
+              <th>Valor convertido</th>
+              <th>Moeda de conversão</th>
+              <th>Editar/Excluir</th>
+            </tr>
+          </thead>
+        </table>
       </div>
     );
   }
