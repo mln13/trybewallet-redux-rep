@@ -2,17 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import requestAPI from '../Api/Api';
-import { walletActionFetch, walletExpenseAction } from '../actions';
+import { walletRemoveAction, walletActionFetch, walletExpenseAction } from '../actions';
 
 class Wallet extends React.Component {
   constructor() {
     super();
     this.state = {
-      value: 0,
       currency: 'USD',
-      description: '',
       method: 'Dinheiro',
       tag: 'Alimentação',
+      value: '',
+      description: '',
     };
     this.totalExpenses = this.totalExpenses.bind(this);
     this.fetchAPI = this.fetchAPI.bind(this);
@@ -20,6 +20,7 @@ class Wallet extends React.Component {
     this.handleForm = this.handleForm.bind(this);
     this.submitClick = this.submitClick.bind(this);
     this.totalExpenses = this.totalExpenses.bind(this);
+    this.handleRemoveClick = this.handleRemoveClick.bind(this);
   }
 
   componentDidMount() {
@@ -65,8 +66,13 @@ class Wallet extends React.Component {
     });
   }
 
+  handleRemoveClick(element) {
+    const { removeStoreExpenses } = this.props;
+    removeStoreExpenses(element);
+  }
+
   render() {
-    const { propsEmail } = this.props;
+    const { propsEmail, propsExpenses } = this.props;
     const { value, currency, tag, description, method } = this.state;
     return (
       <div>
@@ -95,7 +101,7 @@ class Wallet extends React.Component {
               id="valueID"
               name="value"
               value={ value }
-              type="number"
+              type="text"
               onChange={ this.handleForm }
               data-testid="value-input"
             />
@@ -172,10 +178,44 @@ class Wallet extends React.Component {
               <th>Moeda</th>
               <th>Câmbio utilizado</th>
               <th>Valor convertido</th>
-              <th>Moeda de conversão</th>
+              <th>Real</th>
               <th>Editar/Excluir</th>
             </tr>
           </thead>
+          <tbody>
+            {propsExpenses.map((element) => (
+              <tr key={ element.id }>
+                <td>{element.description}</td>
+                <td>{element.tag}</td>
+                <td>{element.method}</td>
+                <td>{Number(element.value).toFixed(2)}</td>
+                <td>{(element.exchangeRates[element.currency]).name}</td>
+                <td>{Number(element.exchangeRates[element.currency].ask).toFixed(2)}</td>
+                <td>
+                  {
+                    (Number(element.exchangeRates[element.currency].ask) * element.value)
+                      .toFixed(2)
+                  }
+                </td>
+                <td>Real</td>
+                <td>
+                  <button
+                    data-testid="edit-btn"
+                    type="button"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    data-testid="delete-btn"
+                    type="button"
+                    onClick={ () => this.handleRemoveClick(element) }
+                  >
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     );
@@ -188,6 +228,7 @@ Wallet.propTypes = {
   propsCurrency: PropTypes.arrayOf.isRequired,
   propsExpenses: PropTypes.func.isRequired,
   storeExpenses: PropTypes.func.isRequired,
+  removeStoreExpenses: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -201,6 +242,7 @@ function mapDispatchToProps(dispatch) {
   return {
     storeCurrencies: (currencies) => dispatch(walletActionFetch(currencies)),
     storeExpenses: (state, apiCambio) => dispatch(walletExpenseAction(state, apiCambio)),
+    removeStoreExpenses: (element) => dispatch(walletRemoveAction(element)),
   };
 }
 
