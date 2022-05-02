@@ -178,7 +178,7 @@ class Wallet extends React.Component {
               <th>Moeda</th>
               <th>Câmbio utilizado</th>
               <th>Valor convertido</th>
-              <th>Real</th>
+              <th>Moeda de conversão</th>
               <th>Editar/Excluir</th>
             </tr>
           </thead>
